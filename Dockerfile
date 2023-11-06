@@ -22,6 +22,9 @@ RUN apk add --no-cache ca-certificates \
 ADD config.yaml /etc/mosdns
 
 ADD entrypoint.sh /root
+ADD init_rules.sh /root
+RUN chmod a+x /root/*.sh && \
+	/root/init_rules.sh
 
 VOLUME /etc/mosdns
 
