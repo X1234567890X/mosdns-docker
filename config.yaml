@@ -1,0 +1,120 @@
+log:
+  level: info
+  production: false
+
+plugins:
+  - tag: "cache"
+    type: "cache"
+    args:
+      size: 10240
+      dump_file: ./cache.dump
+      dump_interval: 600
+
+  - tag: "hosts"
+    type: hosts
+    args:
+      files:
+        - "./rules/hosts.txt"
+
+  - tag: "china_domains"
+    type: domain_set
+    args:
+      files:
+        - "./rules/china_domains.txt"
+
+  - tag: "china_ips"
+    type: ip_set
+    args:
+      files:
+        - "./rules/china_ips.txt"
+
+  - tag: "gfwlist_domains"
+    type: domain_set
+    args:
+      files:
+        - "./rules/gfwlist_domains.txt"
+
+  - tag: "block_domains"
+    type: domain_set
+    args:
+      files:
+        - "./rules/block_domains.txt"
+
+  - tag: "china_forward"
+    type: forward
+    args:
+      concurrent: 2
+      upstreams:
+        - addr: "https://223.5.5.5/dns-query"
+          idle_timeout: 86400
+        - addr: "https://120.53.53.53/dns-query"
+          idle_timeout: 86400
+
+  - tag: "global_forward"
+    type: forward
+    args:
+      concurrent: 2
+      upstreams:
+        - addr: "https://8.8.8.8/dns-query"
+          idle_timeout: 86400
+        - addr: "https://1.1.1.1/dns-query"
+          idle_timeout: 86400
+
+  - tag: "china_sequence"
+    type: sequence
+    args:
+      - exec: $china_forward
+      - matches: has_resp
+        exec: accept
+
+  - tag: "global_sequence"
+    type: sequence
+    args:
+      - exec: prefer_ipv4
+      - exec: $global_forward
+      - matches: has_resp
+        exec: accept
+
+  - tag: "others_sequence"
+    type: sequence
+    args:
+      - exec: $china_sequence
+      - matches: "!resp_ip $china_ips"
+        exec: goto global_sequence
+
+  - tag: "main_sequence"
+    type: sequence
+    args:
+      - exec: query_summary match_sequence
+
+      - exec: $hosts
+
+      - matches: qtype 65
+        exec: reject 3
+      
+      - matches: qname $block_domains
+        exec: reject
+
+      - exec: $cache
+      - matches: has_resp
+        exec: accept
+      
+      - matches: qname $china_domains
+        exec: goto china_sequence
+
+      - matches: qname $gfwlist_domains
+        exec: goto global_sequence
+
+      - exec: $others_sequence
+
+  - tag: "dns_udp_server"
+    type: udp_server
+    args:
+      entry: main_sequence
+      listen: :53
+
+  - tag: "dns_tcp_server"
+    type: tcp_server
+    args:
+      entry: main_sequence
+      listen: :53
