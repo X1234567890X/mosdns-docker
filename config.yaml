@@ -76,7 +76,7 @@ plugins:
   - tag: "others_sequence"
     type: sequence
     args:
-      - exec: $china_sequence
+      - exec: $china_forward
       - matches: "!resp_ip $china_ips"
         exec: goto global_sequence
 
