@@ -2,6 +2,16 @@
 DATA_DIR="/etc/mosdns"
 RULE_DIR="/etc/mosdns/rules"
 
+if [ ! -f "$DATA_DIR/config.yaml" ];then
+    cp /root/config.yaml $DATA_DIR/config.yaml
+    echo "[INFO] config.yaml inited!"
+fi
+
+if [ ! -d "$RULE_DIR" ];then
+    mkdir $RULE_DIR
+    echo "[INFO] $RULE_DIR inited!"
+fi
+
 if [ ! -f "$RULE_DIR/hosts.txt" ];then
     touch $RULE_DIR/hosts.txt
     echo "[INFO] hosts.txt inited!"

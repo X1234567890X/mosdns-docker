@@ -7,38 +7,36 @@ plugins:
     type: "cache"
     args:
       size: 10240
-      dump_file: ./cache.dump
-      dump_interval: 600
 
   - tag: "hosts"
     type: hosts
     args:
       files:
-        - "./rules/hosts.txt"
+        - "/etc/mosdns/rules/hosts.txt"
 
   - tag: "china_domains"
     type: domain_set
     args:
       files:
-        - "./rules/china_domains.txt"
+        - "/etc/mosdns/rules/china_domains.txt"
 
   - tag: "china_ips"
     type: ip_set
     args:
       files:
-        - "./rules/china_ips.txt"
+        - "/etc/mosdns/rules/china_ips.txt"
 
   - tag: "gfwlist_domains"
     type: domain_set
     args:
       files:
-        - "./rules/gfwlist_domains.txt"
+        - "/etc/mosdns/rules/gfwlist_domains.txt"
 
   - tag: "block_domains"
     type: domain_set
     args:
       files:
-        - "./rules/block_domains.txt"
+        - "/etc/mosdns/rules/block_domains.txt"
 
   - tag: "china_forward"
     type: forward

@@ -1,0 +1,12 @@
+version: "3"
+services:
+  mosdns:
+    image: 0x5826/mosdns:latest
+    container_name: mosdns
+    hostname: mosdns
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - "./mosdns:/etc/mosdns"
+    restart: always

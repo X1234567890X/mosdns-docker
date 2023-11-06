@@ -19,8 +19,7 @@ COPY --from=builder /root/mosdns/mosdns /usr/bin/
 RUN apk add --no-cache ca-certificates \
 	&& mkdir /etc/mosdns
 
-ADD config.yaml /etc/mosdns
-
+ADD config.yaml /root
 ADD entrypoint.sh /root
 ADD init_rules.sh /root
 RUN chmod a+x /root/*.sh && \
