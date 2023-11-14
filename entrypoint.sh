@@ -37,4 +37,14 @@ if [ ! -f "$RULE_DIR/china_ips.txt" ];then
     echo "[INFO] china_ips.txt inited!"
 fi
 
+if [ ! -f "$RULE_DIR/custom_china_domains.txt" ];then
+    touch $RULE_DIR/custom_china_domains.txt
+    echo "[INFO] custom_china_domains.txt inited!"
+fi
+
+if [ ! -f "$RULE_DIR/custom_global_domains.txt" ];then
+    touch $RULE_DIR/custom_global_domains.txt
+    echo "[INFO] custom_global_domains.txt inited!"
+fi
+
 /usr/bin/mosdns start

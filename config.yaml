@@ -38,6 +38,18 @@ plugins:
       files:
         - "/etc/mosdns/rules/block_domains.txt"
 
+  - tag: "custom_china_domains"
+    type: domain_set
+    args:
+      files:
+        - "/etc/mosdns/rules/custom_china_domains.txt"
+
+  - tag: "custom_global_domains"
+    type: domain_set
+    args:
+      files:
+        - "/etc/mosdns/rules/custom_global_domains.txt"
+
   - tag: "china_forward"
     type: forward
     args:
@@ -45,7 +57,7 @@ plugins:
       upstreams:
         - addr: "https://223.5.5.5/dns-query"
           idle_timeout: 86400
-        - addr: "https://120.53.53.53/dns-query"
+        - addr: "https://223.6.6.6/dns-query"
           idle_timeout: 86400
 
   - tag: "global_forward"
@@ -55,12 +67,15 @@ plugins:
       upstreams:
         - addr: "https://8.8.8.8/dns-query"
           idle_timeout: 86400
+          socks5: "clash:7890"
         - addr: "https://1.1.1.1/dns-query"
           idle_timeout: 86400
+          socks5: "clash:7890"
 
   - tag: "china_sequence"
     type: sequence
     args:
+      - exec: query_summary match_china_sequence
       - exec: $china_forward
       - matches: has_resp
         exec: accept
@@ -68,6 +83,7 @@ plugins:
   - tag: "global_sequence"
     type: sequence
     args:
+      - exec: query_summary match_global_sequence
       - exec: prefer_ipv4
       - exec: $global_forward
       - matches: has_resp
@@ -76,15 +92,16 @@ plugins:
   - tag: "others_sequence"
     type: sequence
     args:
+      - exec: query_summary match_others_sequence
       - exec: $china_forward
       - matches: "!resp_ip $china_ips"
+        exec: goto global_sequence
+      - matches: "!has_resp"
         exec: goto global_sequence
 
   - tag: "main_sequence"
     type: sequence
     args:
-      - exec: query_summary match_sequence
-
       - exec: $hosts
 
       - matches: qtype 65
@@ -96,7 +113,13 @@ plugins:
       - exec: $cache
       - matches: has_resp
         exec: accept
-      
+
+      - matches: qname $custom_china_domains
+        exec: goto china_sequence
+
+      - matches: qname $custom_global_domains
+        exec: goto global_sequence
+
       - matches: qname $china_domains
         exec: goto china_sequence
 
