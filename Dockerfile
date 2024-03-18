@@ -9,7 +9,7 @@ RUN apk add --update git \
 	&& cd ./mosdns \
 	&& git fetch --all --tags \
 	&& git checkout tags/${TAG} \
-	&& go build -ldflags "-s -w -X main.version=${TAG}" -trimpath -o mosdns
+	
 
 FROM --platform=${TARGETPLATFORM} alpine:latest
 LABEL maintainer="IrineSistiana <github.com/IrineSistiana>"
